@@ -77,3 +77,8 @@ Using ffuf with the command
 ffuf -w Wordlists/usernames.txt -X POST -d "username=FUZZ&password=boguspassword" -H "Content-Type: application/x-www-form-urlencoded" -u http://lookup.thm/login.php -mr "Wrong password"
 ```
 eventually gives us another username, jose. We try to login with out previously found password, and we are greeted with another connection error for *files.lookup.thm*. So in our /etc/hosts file, we change lookup.thm to files.lookup.thm, reload the tab, and we're in!
+
+<img width="1918" height="951" alt="elfinder_lookup" src="https://github.com/user-attachments/assets/c0e8badf-bfd7-4cea-8591-57cf0f3ad85d" />
+
+We are in the file manager elFinder, and we see some juicy looking files! After looking around a little bit, I tried sshing in as root trying out the passwords in root.txt, but it doesn't work.
+After musing about how old this file manager looks, I remember to search for the version to check https://exploit-db.com for elFinder. We can find the version number unter the help tab (looks like a question mark). Looking at exploit-db.com, we find an RCE vulnerability! 
