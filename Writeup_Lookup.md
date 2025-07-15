@@ -137,4 +137,11 @@ mistaking /usr/sbin/pwm for a system binary, I looked it up on https://gtfobins.
 
 <img width="890" height="105" alt="image" src="https://github.com/user-attachments/assets/c9ae8b65-9c74-421e-a342-aecd6e198bc4" />
 
-Interesting! It seems like it runs the id command as the user, and extracts their .passwords file. 
+Interesting! It seems like it runs the id command as the user, and extracts their .passwords file. If only we could execute it as another user!
+
+Let's try creating a fake "id" command to trick it into thinking we are a different user. For that, we first prepend /tmp to our PATH:
+```bash
+export PATH=/tmp:$PATH
+echo $PATH
+```
+Unless the id command is specified with it's full path (in this case /usr/bin/id), it will look in all of the PATH variables 
