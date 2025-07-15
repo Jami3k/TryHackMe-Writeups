@@ -20,8 +20,9 @@ and in the background a more thorough scan:
 ``` markdown
 nmap machine -p-
 ```
+which doesn't yield us any additional results.
 
- The first scan shows that ports 22 and 80 are open, so I did a more aggressive scan on those ports using nmap's -A flag:
+The first scan shows that ports 22 and 80 are open, so I did a more aggressive scan on those ports using nmap's -A flag:
 
  ``` markdown
 nmap machine -p 22,80 -A
@@ -51,3 +52,14 @@ In the results, we can see that it says "Did not follow redirect to http://looku
 We add "lookup.thm" behind out initial /etc/hosts entry for machine, and when reloading the tab we can now visit the website. 
 
 <img width="1917" height="959" alt="login_page_lookup_thm" src="https://github.com/user-attachments/assets/f58e846d-5ac6-4ddd-acc1-167418a4faf7" />
+
+We are greeted with a login page. As always, I first check the source code, where I find nothing of interest. Next, I try the default credentials admin:admin. We are send to another site which tells us that we used a wrong password, and returns us shortly after. 
+
+I noticed that when we entered a random string as a username and password, it didn't say "wrong password", but "wrong username and password", which means we can enumerate users. 
+Using the wordlist from https://github.com/jeanphorn/wordlist, I used the tool **ffuf** to enumerate valid usernames. Initially, I wanted to use the *BurpSuite Intruder* tool, but the attack proved too slow as they were being time-throttled since I only own the community edition.
+
+While setting up my ffuf command, I remembered to do a directory scan, for which I used **gobuster**:
+
+```markdown
+gobuster dir -u http://lookup.thm -w big.txt -x php,html,txt -t 100
+``` 
