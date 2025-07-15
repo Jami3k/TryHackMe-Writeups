@@ -142,7 +142,6 @@ Interesting! It seems like it runs the id command as the user, and extracts thei
 Let's try creating a fake "id" command to trick it into thinking we are a different user. For that, we first prepend /tmp to our PATH:
 ```bash
 export PATH=/tmp:$PATH
-echo $PATH
 ```
 Unless the id command is specified with it's full path (in this case /usr/bin/id), it will look in all of the PATH variables first. Now let's create a fake executable /tmp/id that returns id output for think. We can see what that needs to be when running 
 ``` bash
@@ -159,3 +158,4 @@ chmod +x id # don't forget to make it executable!
 running `./id` now returns the exact same output as if the user "think" had run id.
 
 Now run /usr/sbin/pwm again:
+
