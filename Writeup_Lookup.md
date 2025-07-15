@@ -6,9 +6,7 @@ This is my first writeup, so I'd love some feedback from you all!
 
 ## Tasks
 
-### Task 1
-
-#### Enumeration
+### Enumeration
 
 First of all, I added the ip address of the machine to my /etc/hosts file, and called it "machine" for convenience. I then enumerated the running services using **nmap**:
 
@@ -53,6 +51,7 @@ We add "lookup.thm" behind out initial /etc/hosts entry for machine, and when re
 
 <img width="1917" height="959" alt="login_page_lookup_thm" src="https://github.com/user-attachments/assets/f58e846d-5ac6-4ddd-acc1-167418a4faf7" />
 
+### Initial Access
 
 We are greeted with a login page. As always, I first check the source code, where I find nothing of interest. Next, I try the default credentials admin:admin. We are send to another site which tells us that we used a wrong password, and returns us shortly after. 
 
@@ -80,5 +79,19 @@ eventually gives us another username, jose. We try to login with out previously 
 
 <img width="1918" height="951" alt="elfinder_lookup" src="https://github.com/user-attachments/assets/c0e8badf-bfd7-4cea-8591-57cf0f3ad85d" />
 
-We are in the file manager elFinder, and we see some juicy looking files! After looking around a little bit, I tried sshing in as root trying out the passwords in root.txt, but it doesn't work.
-After musing about how old this file manager looks, I remember to search for the version to check https://exploit-db.com for elFinder. We can find the version number unter the help tab (looks like a question mark). Looking at exploit-db.com, we find an RCE vulnerability! 
+We are in the file manager elFinder, and we see some juicy looking files! 
+After looking around a little bit, I tried sshing in as root trying out the passwords in root.txt, but it doesn't work.
+
+While musing about how old this file manager looks, I remembered to search for the version to check https://exploit-db.com for elFinder. We can find the version number unter the help tab (looks like a question mark). Looking at exploit-db.com, we find an RCE vulnerability! 
+
+After downloading it, we run it using 
+```markdown
+python elfinder_RCE.py http://files.lookup.thm
+```
+and encounter an error. It seems like we need to have a file named "SecSignal.jpg" in out directory. We just cp a random .jpg to our directory, and then run it again.
+
+Now it doesn't work. I re-check the url, and see that I need to append /elFinder. Run it again, and now we get a shell as www-data!
+
+<img width="572" height="143" alt="Initial_access_lookup" src="https://github.com/user-attachments/assets/a5f9eb7b-81b9-40ed-bc0f-449aa1050326" />
+
+### Privilege Escalation
