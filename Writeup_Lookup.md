@@ -53,13 +53,27 @@ We add "lookup.thm" behind out initial /etc/hosts entry for machine, and when re
 
 <img width="1917" height="959" alt="login_page_lookup_thm" src="https://github.com/user-attachments/assets/f58e846d-5ac6-4ddd-acc1-167418a4faf7" />
 
+
 We are greeted with a login page. As always, I first check the source code, where I find nothing of interest. Next, I try the default credentials admin:admin. We are send to another site which tells us that we used a wrong password, and returns us shortly after. 
 
 I noticed that when we entered a random string as a username and password, it didn't say "wrong password", but "wrong username and password", which means we can enumerate users. 
+Since we already found the username "admin" by chance, we'll run hydra on it: 
+```bash
+hydra -l admin -P Schreibtisch/Hacking/Wordlists/rockyou.txt lookup.thm http-post-form "/login.php:username=^USER^&password=^PASS^:F=Wrong password" -vV
+```
+After a couple seconds, it returns success for the password "password123", but when we enter the credentials admin:password123, we are greeted by "Wrong username or password" instead of logging in or a "wrong password" message. This must mean that the password is valid, but not for the admin user. 
+
 Using the wordlist from https://github.com/jeanphorn/wordlist, I used the tool **ffuf** to enumerate valid usernames. Initially, I wanted to use the *BurpSuite Intruder* tool, but the attack proved too slow as they were being time-throttled since I only own the community edition.
 
 While setting up my ffuf command, I remembered to do a directory scan, for which I used **gobuster**:
 
 ```markdown
 gobuster dir -u http://lookup.thm -w big.txt -x php,html,txt -t 100
-``` 
+```
+This revealed no additional information.
+
+Using ffuf with the command 
+``` markdown
+ffuf -w Wordlists/usernames.txt -X POST -d "username=FUZZ&password=boguspassword" -H "Content-Type: application/x-www-form-urlencoded" -u http://lookup.thm/login.php -mr "Wrong password"
+```
+eventually gives us another username, jose. We try to login with out previously found password, and we are greeted with another connection error for *files.lookup.thm*. So in our /etc/hosts file, we change lookup.thm to files.lookup.thm, reload the tab, and we're in!
