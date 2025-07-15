@@ -201,4 +201,4 @@ The answer is ssh! I entered ` sudo less '' /root/.ssh/id_rsa`, and obtained the
 This was certainly an interesting machine featuring login bypass, exploiting a vulnerable application, lateral movement by manipulating PATH and privilege escalation using look.
 
 I hope you enjoyed! See you next time :)
-- Jami3k
+Jami3k
