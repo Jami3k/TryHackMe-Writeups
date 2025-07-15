@@ -53,14 +53,17 @@ We add "lookup.thm" behind out initial /etc/hosts entry for machine, and when re
 
 ### Initial Access
 
-We are greeted with a login page. As always, I first check the source code, where I find nothing of interest. Next, I try the default credentials admin:admin. We are send to another site which tells us that we used a wrong password, and returns us shortly after. 
+We are greeted with a login page. As always, I first check the source code, where I find nothing of interest. Next, I try the default credentials admin:admin. We are sent to another site which tells us that we used a wrong password, and returns us shortly after. 
 
-I noticed that when we entered a random string as a username and password, it didn't say "wrong password", but "wrong username and password", which means we can enumerate users. 
+I noticed that when we entered a random string as a username and password, it didn't say "wrong password", but "wrong username and password", which means that evidently, the username "admin" was correct, but the password was not. Using this, we can enumerate users. 
 Since we already found the username "admin" by chance, we'll run hydra on it: 
 ```bash
 hydra -l admin -P Schreibtisch/Hacking/Wordlists/rockyou.txt lookup.thm http-post-form "/login.php:username=^USER^&password=^PASS^:F=Wrong password" -vV
 ```
-After a couple seconds, it returns success for the password "password123", but when we enter the credentials admin:password123, we are greeted by "Wrong username or password" instead of logging in or a "wrong password" message. This must mean that the password is valid, but not for the admin user. 
+
+After a couple seconds, it returns success for the password "password123", but when we enter the credentials admin:password123, we are greeted by "Wrong username or password" instead of logging in or a "wrong password" message. The reason why hydra returned this as a success is the string "F=Wrong password". This means that any response that does NOT include this string will be returned as a success. In this case, it is a false positive, but still yields us information.
+
+When we got the username wrong and the password wrong it returned "Wrong username AND password". When using a valid username (e.g. 'admin') but the wrong password, we get the "Wrong password message". If now we're getting "wrong username or password", but we know the username is definetely valid, we can infer that the password must be valid as well, just for a different user. Maybe we can use this information later.
 
 Using the wordlist from https://github.com/jeanphorn/wordlist, I used the tool **ffuf** to enumerate valid usernames. Initially, I wanted to use the *BurpSuite Intruder* tool, but the attack proved too slow as they were being time-throttled since I only own the community edition.
 
